@@ -1,8 +1,9 @@
 
 // Basic Info
-const name = document.querySelector('input[name=user-name');
-name.setAttribute('autofocus', '');
-name.focus()
+const email = document.querySelector('#email');
+const userName = document.querySelector('input[name=user-name');
+userName.setAttribute('autofocus', '');
+userName.focus()
 
 // Job Role Selection
 const otherJobRole = document.querySelector('#other-job-role');
@@ -55,15 +56,18 @@ activities.addEventListener('change', (e) => {
         }
     }
     activityCost.textContent = `Total: $${userTotalCost}`;
- })
+})
 
 // "Payment Info" section
 const creditCard = document.querySelector('#credit-card');
+const creditCardNumber = document.querySelector('cc-num');
+const creditCardZIP = document.querySelector('zip');
+const creditCardCVV = document.querySelector('cvv');
 const paypal = document.querySelector('#paypal');
 const bitcoin = document.querySelector('#bitcoin');
 
 // Hide all payment methods on load
-function hideAllPaymentOptions () {
+function hideAllPaymentOptions() {
     creditCard.style.display = 'none';
     paypal.style.display = 'none';
     bitcoin.style.display = 'none';
@@ -87,3 +91,80 @@ paymentSel.addEventListener('change', (e) => {
 paymentSel.value = 'credit-card';
 const changeEvent = new Event('change');
 paymentSel.dispatchEvent(changeEvent);
+
+
+// Validation
+const form = document.querySelector('form');
+
+form.addEventListener('submit', (e) => {
+    if (!isValidName(userName.value)) {
+        e.preventDefault();
+        userName.parentElement.className = 'not-valid';
+        console.log('Bad name')
+    } else {
+        userName.parentElement.className = 'valid';
+    }
+    
+    if (!isValidEmail(email.value)) {
+        e.preventDefault();
+        email.parentElement.className = 'not-valid';
+    } else {
+        email.parentElement.className = 'valid';
+    }
+
+    if (!isValidActivities(activities)) {
+        e.preventDefault();
+
+        console.log('Please choose at least one activity')
+    }
+
+    if (paymentSel.value === 'credit-card') {
+        if (!isValidCCNumber(activities)) {
+            e.preventDefault();
+            console.log('Bad CC Number')
+        }
+    
+        if (!isValidZip(activities)) {
+            e.preventDefault();
+            console.log('Bad Zip')
+        }
+    
+        if (!isValidCVV(activities)) {
+            e.preventDefault();
+            console.log('Bad cvv')
+        }
+    }
+    
+});
+
+// Validator functions
+function isValidName(nameString) {
+    if (nameString == '' | nameString == null) {
+        return false;
+    }
+    return true;
+};
+
+function isValidEmail(email) {
+    return /^[^@\s]+@[^@.]+\.[a-z]+$/.test(email);
+};
+
+function isValidActivities(inputs) {
+    let length = inputs.querySelectorAll('input[type=checkbox]:checked').length;
+    if (length > 0) {
+        return true
+    } 
+    return false
+};
+
+function isValidCCNumber(cardNum) {
+    return /^\d{13,16}$/.test(cardNum);
+}
+
+function isValidZip(zip) {
+    return /^\d{5}$/.test(zip);
+}
+
+function isValidCVV(cvv) {
+    return /^\d{3}$/.test(cvv);
+}
