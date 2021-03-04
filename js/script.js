@@ -52,12 +52,27 @@ activities.addEventListener('change', (e) => {
     let item = e.target;
 
     if (item.tagName == 'INPUT') {
+        // Add up cost of workshops
         let cost = parseInt(item.dataset.cost);
         if (item.checked) {
             userTotalCost += cost;
         } else {
             userTotalCost -= cost;
         }
+        // Setup loop to check for date conflicts
+        let date = item.dataset.dayAndTime;
+        let workshop = item.name;
+        checkboxes.forEach(function(arrItem) {
+            // If any other item has this item's date, 
+            // blank out the other item
+            let arrItemDate = arrItem.dataset.dayAndTime;
+            if (arrItemDate == date && arrItem.name !== workshop) {
+                arrItem.disabled = true;
+            }
+            if (date == arrItemDate && !item.checked) {
+                arrItem.disabled = false;
+            }
+        });
     }
     activityCost.textContent = `Total: $${userTotalCost}`;
 })
@@ -130,12 +145,19 @@ function removeErrorStyles(element) {
 // Realtime validations:
 userName.addEventListener('keyup', (e) => {
     if (!isValidName(userName.value)) {
-        e.preventDefault();
         addErrorStyles(userName);
     } else {
         removeErrorStyles(userName);
     }
 })
+
+activities.addEventListener('change', (e) => {
+    if (!isValidActivities(activities)) {
+        addErrorStyles(activities);
+    } else {
+        removeErrorStyles(activities);
+    }
+});
 
 email.addEventListener
 
@@ -148,7 +170,7 @@ form.addEventListener('submit', (e) => {
     } else {
         removeErrorStyles(userName);
     }
-    
+
     if (email.value == '') {
         addErrorStyles(email);
         email.nextElementSibling.textContent = 'Please add an email address';
@@ -175,14 +197,14 @@ form.addEventListener('submit', (e) => {
         } else {
             removeErrorStyles(creditCardNumber);
         }
-    
+
         if (!isValidZip(zip.value)) {
             e.preventDefault();
             addErrorStyles(zip);
         } else {
             removeErrorStyles(zip);
         }
-    
+
         if (!isValidCVV(cvv.value)) {
             e.preventDefault();
             addErrorStyles(cvv);
@@ -190,7 +212,7 @@ form.addEventListener('submit', (e) => {
             removeErrorStyles(cvv);
         }
     }
-    
+
 });
 
 // Validator/regex functions
@@ -209,7 +231,7 @@ function isValidActivities(inputs) {
     let length = inputs.querySelectorAll('input[type=checkbox]:checked').length;
     if (length > 0) {
         return true
-    } 
+    }
     return false
 };
 
