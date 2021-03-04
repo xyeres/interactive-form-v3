@@ -28,6 +28,7 @@ shirtColor.setAttribute('disabled', '');
 shirtDesign.addEventListener('change', (e) => {
     // Enable so user can now select shirt color
     shirtColor.removeAttribute('disabled');
+
     for (let i = 1; i < shirtColor.options.length; i++) {
         let shirt = shirtColor.options[i];
         // reset the list to make all options visible 
@@ -37,10 +38,13 @@ shirtDesign.addEventListener('change', (e) => {
             shirt.setAttribute('hidden', '');
         }
     }
+    shirtColor.options[0].removeAttribute('selected');
+    shirtColor.options[0].setAttribute('selected', '');
 })
 
 // Register for Activities Section
-const activities = document.querySelector('#activities');
+const activities = document.querySelector('#activities-box');
+const checkboxes = activities.querySelectorAll('input[type=checkbox]');
 const activityCost = document.querySelector('#activities-cost');
 let userTotalCost = 0;
 
@@ -58,11 +62,26 @@ activities.addEventListener('change', (e) => {
     activityCost.textContent = `Total: $${userTotalCost}`;
 })
 
+// Set focus and blur events on checkboxes
+activities.addEventListener('focusin', (e) => {
+    let item = e.target;
+    if (item.tagName == 'INPUT') {
+        item.parentElement.className = 'focus';
+    }
+});
+
+activities.addEventListener('focusout', (e) => {
+    let item = e.target;
+    if (item.tagName == 'INPUT') {
+        item.parentElement.className = '';
+    }
+});
+
 // "Payment Info" section
 const creditCard = document.querySelector('#credit-card');
-const creditCardNumber = document.querySelector('cc-num');
-const creditCardZIP = document.querySelector('zip');
-const creditCardCVV = document.querySelector('cvv');
+const creditCardNumber = document.querySelector('#cc-num');
+const creditCardZIP = document.querySelector('#zip');
+const creditCardCVV = document.querySelector('#cvv');
 const paypal = document.querySelector('#paypal');
 const bitcoin = document.querySelector('#bitcoin');
 
@@ -96,48 +115,85 @@ paymentSel.dispatchEvent(changeEvent);
 // Validation
 const form = document.querySelector('form');
 
-form.addEventListener('submit', (e) => {
+
+function addErrorStyles(element) {
+    element.parentElement.classList.add('not-valid');
+    element.parentElement.lastElementChild.style.display = 'block';
+}
+
+function removeErrorStyles(element) {
+    element.parentElement.classList.remove('not-valid');
+    element.parentElement.classList.add('valid');
+    element.parentElement.lastElementChild.style.display = 'none';
+}
+
+// Realtime validations:
+userName.addEventListener('keyup', (e) => {
     if (!isValidName(userName.value)) {
         e.preventDefault();
-        userName.parentElement.className = 'not-valid';
-        console.log('Bad name')
+        addErrorStyles(userName);
     } else {
-        userName.parentElement.className = 'valid';
+        removeErrorStyles(userName);
+    }
+})
+
+email.addEventListener
+
+// Form submit
+form.addEventListener('submit', (e) => {
+    // Check validation before form submit
+    if (!isValidName(userName.value)) {
+        e.preventDefault();
+        addErrorStyles(userName);
+    } else {
+        removeErrorStyles(userName);
     }
     
-    if (!isValidEmail(email.value)) {
+    if (email.value == '') {
+        addErrorStyles(email);
+        email.nextElementSibling.textContent = 'Please add an email address';
+    }
+    else if (!isValidEmail(email.value)) {
         e.preventDefault();
-        email.parentElement.className = 'not-valid';
+        addErrorStyles(email);
+        email.nextElementSibling.textContent = 'Email address must be formatted correctly';
     } else {
-        email.parentElement.className = 'valid';
+        removeErrorStyles(email);
     }
 
     if (!isValidActivities(activities)) {
         e.preventDefault();
-
-        console.log('Please choose at least one activity')
+        addErrorStyles(activities);
+    } else {
+        removeErrorStyles(activities);
     }
 
     if (paymentSel.value === 'credit-card') {
-        if (!isValidCCNumber(activities)) {
+        if (!isValidCCNumber(creditCardNumber.value)) {
             e.preventDefault();
-            console.log('Bad CC Number')
+            addErrorStyles(creditCardNumber);
+        } else {
+            removeErrorStyles(creditCardNumber);
         }
     
-        if (!isValidZip(activities)) {
+        if (!isValidZip(zip.value)) {
             e.preventDefault();
-            console.log('Bad Zip')
+            addErrorStyles(zip);
+        } else {
+            removeErrorStyles(zip);
         }
     
-        if (!isValidCVV(activities)) {
+        if (!isValidCVV(cvv.value)) {
             e.preventDefault();
-            console.log('Bad cvv')
+            addErrorStyles(cvv);
+        } else {
+            removeErrorStyles(cvv);
         }
     }
     
 });
 
-// Validator functions
+// Validator/regex functions
 function isValidName(nameString) {
     if (nameString == '' | nameString == null) {
         return false;
