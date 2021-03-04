@@ -68,9 +68,11 @@ activities.addEventListener('change', (e) => {
             let arrItemDate = arrItem.dataset.dayAndTime;
             if (arrItemDate == date && arrItem.name !== workshop) {
                 arrItem.disabled = true;
+                arrItem.parentElement.classList.add('disabled')
             }
             if (date == arrItemDate && !item.checked) {
                 arrItem.disabled = false;
+                arrItem.parentElement.classList.remove('disabled');
             }
         });
     }
